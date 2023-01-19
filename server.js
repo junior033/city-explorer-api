@@ -34,11 +34,11 @@ app.get('/', (request, response) => {
 app.get('/weather', (request, response, next) => {
   try {
     let lat = request.query.lat; //querys for key
-    let long = request.query.lon;
+    let lon = request.query.lon;
     let {searchQuery} = request.query;
 
-    let dataToGroom = data.find(weather => weather.city_name.toLowerCase() === searchQuery.toLowerCase());
-    let dataToSend = new Forecast(dataToGroom.data.map((day) => day));
+    let dataToGroom = data.find(city => city.city_name.toLowerCase() === searchQuery.toLowerCase());
+    let dataToSend = (dataToGroom.data.map((day) => new Forecast(day)));
 
     response.status(200).send(dataToSend);
 
@@ -51,8 +51,7 @@ app.get('/weather', (request, response, next) => {
 
 class Forecast{
   constructor(day){
-    console.log('day::::::::', day);
-    this.date = day.datetime;
+    this.date = day.valid_date;
     this.description = day.weather.description;
   }
 }
