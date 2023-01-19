@@ -1,7 +1,10 @@
 # City Explorer API
 <img width="1059" alt="Screenshot 2023-01-17 at 6 35 24 PM" src="https://user-images.githubusercontent.com/68163497/213067178-61e6ec9f-c39f-447c-a28a-e1139eaf0a81.png">
 
-**Author**: Your Name Goes Here
+**Author**: Marlon
+
+Tutored by Mike Shen
+
 **Version**: 1.0.0 (increment the patch/fix version number if you make more commits past your first submission)
 
 ## Overview

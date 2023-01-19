@@ -7,10 +7,9 @@ console.log('Hello from server');
 const express = require('express');
 require('dotenv').config();
 const cors = require('cors');
-const data = require('./data/weather.json');
+const axios = require('axios');
 
-
-// Once express is sin we activate it to use it
+// Once express is in we activate it to use it
 const app = express();
 
 // Middleware
@@ -31,14 +30,37 @@ app.get('/', (request, response) => {
   response.status(200).send('Welcome to my server');
 });
 
-app.get('/weather', (request, response, next) => {
+app.get('/movies', async (request, response, next) => {
+  try {
+
+    let query = request.query.query;
+    let url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.TMDB_API_KEY}&query=${query}&language=en-US&page=1&include_adult=false`;
+
+
+    let moviesFromAxios = await axios.get(url);
+
+    let arrayOfMovies = moviesFromAxios.data.results;
+    let newMovieArray = (arrayOfMovies.map((movie) => new Movie(movie)));
+
+    response.status(200).send(newMovieArray);
+
+  } catch (error) {
+    next(error);
+  }
+});
+
+
+
+app.get('/weather', async (request, response, next) => {
   try {
     let lat = request.query.lat; //querys for key
     let lon = request.query.lon;
-    let {searchQuery} = request.query;
+    let url = `http://api.weatherbit.io/v2.0/forecast/daily?key=${process.env.WEATHER_API_KEY}&lat=${lat}&lon=${lon}&units=I`;
 
-    let dataToGroom = data.find(city => city.city_name.toLowerCase() === searchQuery.toLowerCase());
-    let dataToSend = (dataToGroom.data.map((day) => new Forecast(day)));
+    let dataToGroom = await axios.get(url);
+    dataToGroom = dataToGroom.data.data;
+
+    let dataToSend = (dataToGroom.map((day) => new Forecast(day)));
 
     response.status(200).send(dataToSend);
 
@@ -48,6 +70,13 @@ app.get('/weather', (request, response, next) => {
 });
 
 // class to groom bulky data
+
+class Movie{
+  constructor(movie){
+    this.title = movie.title;
+    this.description = movie.overview;
+  }
+}
 
 class Forecast{
   constructor(day){
