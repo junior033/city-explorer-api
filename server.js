@@ -1,46 +1,27 @@
 'use strict';
 
-console.log('Hello from server');
-
-// ** REQUIRES**
-const express = require('express');
 require('dotenv').config();
+const express = require('express');
 const cors = require('cors');
-const getMovies = require('./modules/movies');
-const getWeather = require('./modules/weather');
-
-// Once express is in we activate it to use it
+const getMovies = require('./modules/Movies.js')
+const weather = require('./modules/Weather.js');
 const app = express();
 
-// Middleware
-// cors acts like a security gaurd that allows us to share resources across the internet
 app.use(cors());
-
-// Define a port for server to run on with a back up
 
 const PORT = process.env.PORT || 3002;
 
-// ** END POINTS **
-// Base endpoint(route) - proof of life
-// 1st arg - endpoint in quotes
-// 2nd arg - callback which will execute when someone hits endpoint
-// Callback function - 2 parameters: request, response (req, res)
-app.get('/', (request, response) => {
-  response.status(200).send('Welcome to my server');
-});
-
 app.get('/movies', getMovies);
-app.get('/weather', getWeather);
+app.get('/weather', weatherHandler);
 
-// Catch all endpoint - must be last defined endpoint
-app.get('*', (request, response) => {
-  response.status(404).send('Error');
-});
+function weatherHandler(request, response) {
+  const { lat, lon } = request.query;
+  weather(lat, lon)
+    .then(summaries => response.send(summaries))
+    .catch((error) => {
+      console.error(error);
+      response.status(200).send('Sorry. Something went wrong!');
+    });
+}
 
-// Error Handling - plug and play code from express docs
-app.use((error, request, response, next) => {
-  response.status(500).send(error.message);
-});
-
-// Server start
-app.listen(PORT, () => console.log(`Running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server up on ${PORT}`));
